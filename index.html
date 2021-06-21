@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestrunTimer</title>
+    <style type="text/css">
+        body{
+            background-color: rgb(214, 255, 255);
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="start()">Start</button>
+        <button onclick="pause()">Stop</button>
+        <input type="number" id="startnumber" name="starnumber" min="0" max="999">
+        <button onclick="lap()">Lap</button>
+        
+    </div>
+    <div class="stopwatch">00:00:00</div>
+    <ul class="laps"></ul>
+    <button onclick="resetLaps()">Reset laps</button>
+        <button onclick="stop()">Reset</button>
+        <button onclick="save()">Lagre resultat</button>
+
+
+
+    <script type="text/javascript">
+        var ms=0, s=0,m=0;
+        var timer;
+
+        var stopwatchEl = document.querySelector(".stopwatch");
+        var lapsContainer = document.querySelector(".laps");
+
+        function start() {
+            if(!timer){
+            timer=setInterval(run, 10);
+            }
+        }
+
+        function run() {
+            stopwatchEl.textContent = (m<10 ? "0" + m:m ) + ":" + (s<10 ? "0" + s : s) +":"+ (ms<10 ? "0" + ms:ms);
+            ms++;
+            if(ms==100) {
+                ms=0;
+                s++
+            }
+            if(s==60){
+                s=0;
+                m++;
+            }        
+        }
+        function pause() {
+            clearInterval(timer);
+            timer=false;
+        }
+        function stop() {
+            clearInterval(timer);
+            timer=false;
+            ms=0;
+            s=0;
+            m=0;
+            stopwatchEl.textContent = (m<10 ? "0" + m:m ) + ":" + (s<10 ? "0" + s : s) +":"+ (ms<10 ? "0" + ms:ms);
+
+        }
+        function getTimer() {
+            return((m<10 ? "0" + m:m ) + ":" + (s<10 ? "0" + s : s) +":"+ (ms<10 ? "0" + ms:ms));
+        }
+
+        function lap(){
+            if(timer){
+                var li = document.createElement("li") ;
+                var nr = document.getElementById("startnumber").value;
+
+                li.innerText=getTimer()+":       Startnummer:   "+ nr ;
+                lapsContainer.appendChild(li);
+
+            };
+            document.getElementById('startnumber').value ='' 
+        }
+        function resetLaps(){
+            lapsContainer.innerHTML="";
+        }
+
+    </script>
+
+</body>
+</html>

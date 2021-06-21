@@ -1,0 +1,100 @@
+<% layout("/boilerplate")%>
+<% const temp=[];
+ %>
+ <h1 class="mt-3">Deltakerlister</h1>
+ <p>På denne siden kan du opprette deltakerlister for framtidige arrangement. Dette gjøres ved å legge til navn og startnummer. På denne måten vil navn 
+     og startnummer automatisk pares etter tidtakingen.  
+ </p>
+        <div class="row">
+            <h3 class="mt-3">Opprett ny deltakerliste</h3>
+
+        <div style="width: 100%;" class="">
+                <a class="btn btn-info  mb-3" 
+                style="  width: 100%; "data-toggle="collapse" 
+                href="#collapseExample" role="button" 
+                aria-expanded="false" aria-controls="collapseExample">
+                Legg til ny startliste
+                </a>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body" style="margin-bottom: 10px;">
+                        <div>
+                            
+<label class="form-label" for="name">Navn: </label>
+                <input style="width: 100%;" class="mb-3 form-control"  type="text" id="name" name="name" min="0" placeholder="">
+                <label class="form-label" for="participantNumber">Startnummer: </label>
+                <input style="width: 100%;" class="mb-3 form-control"  type="number" id="participantNumber" 
+                name="participantNumber" min="0" max="999 " placeholder="">
+                <button style="width: 100%;" class="mx-auto btn btn-success mb-5" onclick="participant()">Legg til deltaker</button>
+            </div>
+        
+        <ul style="width: 100%; font-size: 20px;" id="demo" class="demo"></ul>
+        <form action="/start" method="POST">
+            <input type="hidden" name="participants" id="participants" value="<%=temp%>">
+            <label for="name" class="form-label">Gi startlisten et navn</label>
+            <input type="text" name="name" class="mb-3 form-control" id="name" required>
+            <button style="width:100%;"  class="btn btn-info mb-3" >Lagre deltakerliste</button>
+        </form> 
+</div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div> 
+
+
+            <div class="col-20 ">
+
+        <div id="participantLists" class="">
+            <h3 class="mt-3">Her er dine tidligere startlister:</h3>
+            <%for(let start of starts){%>
+                <%if(currentUser._id.equals(start.author)){%>
+                    <%   %> 
+                    
+                    <form action="/participants/<%=start._id%>/show" >
+                        <button style="width: 100%;"  class="btn btn-success mb-3"><%=start.name%></button>
+                    </form>   
+<%   %>               
+<%}%>   
+            <%}%>
+        </div>
+    <form action="/">
+        <button onclick="''" class="btn btn-info mb-3 mt-3" style="">Tilbake</button>
+    </form> 
+ <script> 
+
+
+
+        function lookup(start) {
+            var list = document.getElementById('demo');
+            var name = document.getElementById('name').value;
+            var participantNumber = document.getElementById('start.name').value;
+            var entry = document.createElement('li');
+            entry.appendChild(document.createTextNode(" \xa0\xa0\xa0\xa0\xa0\xa0\xa0" +name ));
+            list.appendChild(entry);
+            var part= name ;
+            temp.push(part);
+            console.log(temp);
+            document.getElementById("participants").value = temp;
+
+        }
+
+        var temp = [];
+        function participant() {    
+            
+            var list = document.getElementById('demo');
+            var name = document.getElementById('name').value;
+            var participantNumber = document.getElementById('participantNumber').value;
+            var entry = document.createElement('li');
+            entry.appendChild(document.createTextNode(participantNumber+" \xa0\xa0\xa0\xa0\xa0\xa0\xa0" +name ));
+            list.appendChild(entry);
+            var part= name + ";" + participantNumber;
+            temp.push(part);
+            console.log(temp);
+            document.getElementById("participants").value = temp;
+
+        }
+
+
+        
+        </script>

@@ -1,0 +1,157 @@
+<% layout("/boilerplate")%>
+<div  class="row container shadow-sm p-3 mb-5 bg-body rounded mt-3" style="">
+    <h1 class="text-center mb-4"> Ny tidtaking: <%=start.name %> </h1>
+    <div class="col-20 ">
+    <%var temp = [];%>
+
+    <div>
+        
+    </div>
+
+
+  
+    <div  class="">
+        <button  style="width: 100%;" class=" btn btn-success mb-3" onclick="start()">Start</button>
+    </div>
+
+        <div style="margin:auto; font-size: 30px;" class="mb-3">
+                <div class="stopwatch " id="clock" >00;00;00</div>
+        </div>        
+        
+            <input style="width: 50%;" class="mb-5 btn btn-light"  type="number" id="startnumber" name="starnumber" min="0" max="999" placeholder="Startnummer">
+        <button style="width: 49%;" class="mx-auto btn btn-success mb-5" onclick="lap()">Lap</button>
+
+       
+        
+        <div class="mb-3 list-group list-group-numbered">
+        <ul style="width: 100%; font-size: 20px;" class="laps"></ul>
+        </div>
+
+
+        
+<div class="btn-group" role="group" aria-label="Basic outlined example" style="width: 100%;">
+            <button type="button "   onclick="resetLaps()" class="mb-3 btn btn-outline-danger   ">Reset runder</button>
+            <button type="button "  onclick="stop()" class="mb-3 btn btn-outline-danger">Reset timer</button>
+            <button type="button "  onclick="pause()" class="mb-3 btn btn-outline-danger">Pause timer</button>
+          </div>
+
+          
+        <form action="/timings/<%=start._id%>"  method="POST" novalidate class="validated-form">
+            <input class="" type="hidden" id="start" name="start" value="<%=start%>" >
+
+            <input class="" type="hidden" id="timingTable" name="timing" value="<%=temp%>" >
+            <input class="mb-3 btn btn-light" style="font-size: 14px; width: 100%; margin-top: 10px;" 
+                    type="hidden" id="name" name="name" placeholder="" value="<%=start.name%>" required>
+            <button class="btn btn-success mb-3" style="width: 100%;">Lagre resultat</button>
+        </form>  
+         
+
+
+        <form action="/">
+            <button onclick="''" class="btn btn-info">Tilbake</button>
+        </form>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+(function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.validated-form')
+
+            // Loop over them and prevent submission
+            Array.from(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+
+
+window.onbeforeunload = function() {
+  return "Data will be lost if you leave the page, are you sure?";
+};
+
+        var ms=0, s=0,m=0;
+        var timer;
+        var temp = [];
+
+        var stopwatchEl = document.querySelector(".stopwatch");
+        var lapsContainer = document.querySelector(".laps");
+
+        function start() {
+            if(!timer){
+            timer=setInterval(run, 10);
+            }
+        }
+
+        function run() {
+            stopwatchEl.textContent = (m<10 ? "0" + m:m ) + ";" + (s<10 ? "0" + s : s) +";"+ (ms<10 ? "0" + ms:ms);
+            ms++;
+            if(ms==100) {
+                ms=0;
+                s++
+            }
+            if(s==60){
+                s=0;
+                m++;
+            }        
+        }
+        function pause() {
+            clearInterval(timer);
+            timer=false;
+        }
+        function stop() {
+            clearInterval(timer);
+            timer=false;
+            ms=0;
+            s=0;
+            m=0;
+            stopwatchEl.textContent = (m<10 ? "0" + m:m ) + ";" + (s<10 ? "0" + s : s) +";"+ (ms<10 ? "0" + ms:ms);
+
+        }
+        function getTimer() {
+            return((m<10 ? "0" + m:m ) + ";" + (s<10 ? "0" + s : s) +";"+ (ms<10 ? "0" + ms:ms));
+        }
+
+
+        function lap() {
+
+            if(timer){
+                var li = document.createElement("li") ;
+                var nr = document.getElementById("startnumber").value;
+
+                li.innerText=getTimer()+" startnummer: "+ nr ;
+                lapsContainer.appendChild(li);
+                const timer = (getTimer()+"S"+ nr );
+                temp.push(timer);
+                       document.getElementById('startnumber').value ='' ;
+                
+                document.getElementById("timingTable").value = temp;
+
+            }
+        
+        
+
+        
+
+        }
+        function resetLaps(){
+            lapsContainer.innerHTML="";
+        }
+
+    </script>
+
+<!---
+<button class="btn btn-danger mb-4" onclick="resetLaps()">Reset laps</button>
+        <button class="btn btn-danger mb-4 " onclick="stop()">Reset</button>
+        <button class="btn btn-danger mb-4" onclick="pause()">Stop</button>-->

@@ -1,0 +1,38 @@
+<% layout("/boilerplate")%>
+<div class="row">
+    <h1 class="text-center">Startliste: <%=start.name %></h1>
+    <div class="col-20 ">
+
+
+
+<table class="table mt-3" id="tblData">
+    <tr>
+            <th>Startnummer: </th>
+            <th>Navn:</th>
+    </tr>
+    <%let j = 0%>
+    <%for(element in start.participantsStart){%>    
+    <tr>
+        <th><%=start.participantsStart[j].participantNumber%></th>
+        <th><%=start.participantsStart[j].name%></th>
+    
+    </tr>
+    <%j ++%>
+        <%}%> 
+</table>
+
+<form action="/timingRender/<%=start._id%>/timing" >
+    <input type="hidden" name="start" id="start" value="<%=start._id %>">
+    <button onclick="'timing'" class="btn btn-success mb-3">Bruk denne startslisten i arrangement</button>
+</form>
+
+<form action="/deleteStart/<%=start._id%>?_method=DELETE" method="POST">
+    <button style=" background-color: rgba(177, 58, 22, 0.657);" class="btn btn-danger mb-3">Slett</button>
+</form> 
+
+
+<form action="/participants">
+    <button onclick="'participant'" class="btn btn-info mb-3">Tilbake</button>
+</form>
+
+</div>

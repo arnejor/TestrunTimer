@@ -1,0 +1,60 @@
+<body>
+    
+        <div style="">
+<% layout("/boilerplate")%>
+<div  class="row">
+    <h1 class="text-center mb-3">TestrunTimer</h1>
+    <div class="col-20 ">
+
+<form action="/timingEasy"style="margin-top: 25px;">
+    <button style="width: 100%; background-color: rgba(22, 177, 22, 0.657);" 
+            class="btn btn-success" 
+            onclick="'timingEasy'">
+            <b>Enkel tidtaking (uten lagring)</b></button>
+</form>
+
+<%if(currentUser){%>
+<form action="/participants">
+    <button style="width: 100%; background-color: rgba(22, 177, 22, 0.657); margin-top: 25px;" 
+            class="btn btn-success" 
+            onclick="'participants'"><b>Deltakerlister</b> </button>
+</form>    
+
+
+
+<form action="/results" style="margin-top: 25px;">
+    <button style="width: 100%; background-color: rgba(22, 177, 22, 0.657);" 
+            class="btn btn-success" 
+            onclick="'results'" 
+            ><b>Se resultat</b></button>
+</form>
+<form action="/logout" style="margin-top: 25px;">
+    <button style="width: 100%; " 
+            class="btn btn-info" 
+            onclick="'logout'" 
+            ><b>Logg ut</b></button>
+</form>
+
+
+<%}else{%>
+    <form action="/login" style="margin-top: 25px;">
+        <button style="width: 100%; " 
+                class="btn btn-info" 
+                onclick="'login'" 
+                ><b>Login</b></button>
+    </form>
+    <form action="/user" style="margin-top: 25px;">
+        <button style="width: 100%; " 
+                class="btn btn-info" 
+                onclick="'user'" 
+                ><b>Registrer deg</b></button>
+    </form>
+<%}%>
+<p class="mt-3">TestrunTimer er en gratis tidtaker-tjeneste, ypperlig for små til mellomstore arrangementer,
+    som testløp, treningsløp eller andre uformelle sammenhenger. For å lagre og eksportere resultatene
+    må du opprette en konto. 
+</p>
+</div>
+</div>
+  </div>
+</body>
