@@ -5,12 +5,13 @@ const mongoose = require("mongoose");
 const { stringify } = require("querystring");
 const session = require("express-session");
 const catchAsync = require("./utils/catchAsync");
+const ExpressError = require("./utils/ExpressError")
 // the new schema model:
 const Participant = require("./models/participant");
 const Event = require("./models/event");
 const Start = require("./models/start");
 const ParticipantsStart = require("./models/participantsStart");
-
+const mongoSanitize = require("express-mongo-sanitize");
 const { events } = require("./models/participant");
 const methodOverride = require("method-override");
 const {isLoggedIn} = require("./middelware");
@@ -37,7 +38,7 @@ app.use(flash());
 app.engine("ejs", ejsMate)
 
 
-// Connecting app to database
+// CONNECTING TO MONGODB -----------------------------------------------------------
 mongoose.connect("mongodb://localhost:27017/testrun-timer", {
     useNewUrlParser: true, 
     useCreateIndex: true, 
@@ -62,47 +63,36 @@ app.use((req, res, next)=>{
     res.locals.error = req.flash("error");
     next();
 });
-//app.use((req, res, next) =>{
-//    res.locals.currentUser = req.user;
-//
-//
-//});
 
 app.use(bodyParser.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"))
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride("_method"));
+app.use(mongoSanitize());
 
 
-
-// Saving events
+// TIMING -----------------------------------------------------------------------------------
 app.post("/timings/:id", isLoggedIn, catchAsync(async(req, res)=> {
+    
     // defining trhe event first:
     const event = new Event({name: req.body.name, author: req.user});
-
     // får her tilgang til det aktuelle start-objektet
     const  {id} = req.params;
     const start = await Start.findById(id).populate("participantsStart");
     console.log(start);
-    
     let list=[];
     for(i in start.participantsStart){
         list.push(start.participantsStart[i].participantNumber)
     };
     console.log(list);
-    
-    
-
     // splitting req.boduy.timing into readable objects.
-    
         const timingObject = (req.body.timing);
         const timingObjectSplit = timingObject.split(',');
         //saves the participant objects in separate collection in DB.
         for(i in timingObjectSplit){
-            
-
             var name = "";
             const participantSplit = timingObjectSplit[i].split('S');
             console.log(participantSplit[1]);       
@@ -112,31 +102,38 @@ app.post("/timings/:id", isLoggedIn, catchAsync(async(req, res)=> {
                     console.log("!YES");
                     var name = start.participantsStart[j].name;
                 };
-
             };
-                    
-            
             var participant = new Participant({time: participantSplit[0], 
                         participantNumber: participantSplit[1],
                         name: name});
-                    
-                    
                     await participant.save();
-                    event.participants.push(participant);
-          
-           
+                    event.participants.push(participant);          
         };  
-        
-
-
         await event.save();    
         res.redirect(`/results/${event._id}/show`)
-            req.flash("success", "successfully saved");    
+            req.flash("success", "successfully saved"); 
+        
 }));
 
-app.post("/start", isLoggedIn, catchAsync(async(req, res) => {
-    
+app.put("/events/:id", catchAsync(async(req, res) => {
+    const {id} = req.params;
+    const event = await Event.findByIdAndUpdate(id, { ... req.body.event, comment: req.body.comment});
+    console.log()
+}));
 
+// STARTLISTER -------------------------------------------------------------------------
+
+app.delete("/deleteStart/:id", isLoggedIn, catchAsync(async(req, res)=>{
+    const { id } = req.params;
+    await Start.findByIdAndDelete(id);
+    res.redirect("/participants")
+}));
+app.get("/participants/:id/show", isLoggedIn, catchAsync(async(req, res)=>{
+    const start = await Start.findById(req.params.id).populate("participantsStart");
+    res.render("showStart", { start } );
+}));
+app.post("/start", isLoggedIn, catchAsync(async(req, res, next) => {
+    
     const start = await new Start({name: req.body.name, author: req.user});
     const timingObject = (req.body.participants);
     const timingObjectSplit = timingObject.split(',');
@@ -150,10 +147,7 @@ app.post("/start", isLoggedIn, catchAsync(async(req, res) => {
     await start.save();
     const starts = await Start.find({}).populate("participantsStart");
     res.render("participants", {starts})
-}));
-app.get("/participants/:id/show", isLoggedIn, catchAsync(async(req, res)=>{
-    const start = await Start.findById(req.params.id).populate("participantsStart");
-    res.render("showStart", { start } );
+    
 }));
 
 app.get("/participants", isLoggedIn, async(req, res)=>{
@@ -161,39 +155,36 @@ app.get("/participants", isLoggedIn, async(req, res)=>{
     res.render("participants", {starts});
 })
 
-app.delete("/deleteStart/:id", isLoggedIn, catchAsync(async(req, res)=>{
-    const { id } = req.params;
-    await Start.findByIdAndDelete(id);
-    res.redirect("/participants")
+
+
+
+// PROFIL, ENKEL TIMING -----------------------------------------------------------------------
+
+app.get("/profil", isLoggedIn, catchAsync(async(req, res)=>{
+    res.render("profil")
+}));
+app.get("/timingEasy", catchAsync(async(req, res)=>{
+    res.render("timingEasy")
 }));
 
 
 
-app.get("/profil", isLoggedIn, (req, res)=>{
-    res.render("profil")
-})
-app.get("/timingRender/:id/timing", isLoggedIn, async(req, res)=>{
-    const  {id} = req.params;
-    
-    const start = await Start.findById(id).populate("participantsStart");
 
+
+// RESULTS ------------------------------------------------------------------------------------
+app.get("/timingRender/:id/timing", isLoggedIn, catchAsync(async(req, res)=>{
+    const  {id} = req.params;
+    const start = await Start.findById(id).populate("participantsStart");
     res.render("timing", {start})
-});
-app.get("/newEvent", isLoggedIn, (req, res)=>{
-    res.render("newEvent")
-});
-app.get("/timingEasy", (req, res)=>{
-    res.render("timingEasy")
-});
+}));
+
+
 app.get("/results", isLoggedIn, catchAsync(async(req, res, next)=>{
     const timings = await Event.find({}).populate("participants");
     res.render("results", { timings })
 }));
-app.put("/events/:id", catchAsync(async(req, res) => {
-    const {id} = req.params;
-    const event = await Event.findByIdAndUpdate(id, { ... req.body.event, comment: req.body.comment});
-    console.log()
-}));
+
+
 app.get("/results/:id/show", isLoggedIn, catchAsync(async(req, res) => {
     const event = await Event.findById(req.params.id).populate('participants');
     event.participants = Participant;
@@ -202,35 +193,42 @@ app.get("/results/:id/show", isLoggedIn, catchAsync(async(req, res) => {
 app.get("/user", (req, res)=> {
     res.render("user");
 });
+
+
+
+// USER --------------------------------------------------------------------------------
 app.post("/register", catchAsync(async(req, res)=>{
+    
     const {email, username, password} = req.body;
     const user = new User({email, username });
     const registeredUser = await User.register(user, password);
     res.redirect("/");
     req.flash("success", "successfully registered");
-
+    
 }));
+
 app.delete("/delete/:id", isLoggedIn, catchAsync(async(req, res) =>{
+    
     const { id } = req.params;
     await Event.findByIdAndDelete(id);
     res.redirect("/results")
+    
 }));
 
-app.get("/newEvent", (req, res)=>{
-    res.render("newEvent")
-});
-app.post("/newEvent", isLoggedIn,  async(req, res)=>{
+app.post("/newEvent", isLoggedIn,  catchAsync(async(req, res)=>{
+    
     const event = new Event({name: req.body.name, author: req.body.user});
-
     res.render("participants", {event})
-});
-app.post("/newParticipant", async(req, res)=>{
+    
+}));
 
+app.post("/newParticipant", catchAsync(async(req, res)=>{
+    
     const participant = new Participant({name: req.body.name, participantNumber: req.body.participantNumber});
     const participants = Participant.find({});
     res.render("participants", {participants})
-
-});
+    
+}));
 
 app.get("/login", (req, res)=>{
     res.render("login")
@@ -243,24 +241,25 @@ app.get("/logout", (req, res) => {
     req.logout();
     res.redirect("/");
 })
+
+
+
 // Rendering the "home" tab
 app.get("/", (req, res)=>{
     res.render("home")
 });
 
+// error handeling
+app.all("*", (req, res, next) => {
+    next(new ExpressError("Page not found ", 404))
+});
 
-
-//// error handeling
-//app.all("*", (req, res, next) => {
-//    next(new ExpressError("Page not found", 404))
-//});
-
-//// error
-//app.use((err, req, res, next) => {
-//    const { statusCode = 500 } = err;
-//    if (!err.message) err.message = 'Something Went Wrong!'
-//    res.status(statusCode).render('error', { err })
-//});
+// error
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Something Went Wrong!'
+    res.status(statusCode).render('error', { err })
+});
 
 // Just notifying connection to server
 app.listen(3000, ()=>{

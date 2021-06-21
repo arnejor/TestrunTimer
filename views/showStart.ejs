@@ -23,7 +23,7 @@
 
 <form action="/timingRender/<%=start._id%>/timing" >
     <input type="hidden" name="start" id="start" value="<%=start._id %>">
-    <button onclick="'timing'" class="btn btn-success mb-3">Bruk denne startslisten i arrangement</button>
+    <button onclick="'timing'" style="width: 100%;" class="btn btn-success mb-3">Bruk denne startslisten i arrangement</button>
 </form>
 
 <form action="/deleteStart/<%=start._id%>?_method=DELETE" method="POST">

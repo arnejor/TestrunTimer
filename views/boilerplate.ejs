@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TestrunTimer</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    
+    <script type="text/javascript" src="/TestrunTimer/javascripts/timer.js"></script>
+
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
@@ -27,25 +28,25 @@
           <a class="nav-link" href="/">Hjem <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/timing">Nytt event</a>
+          <a class="nav-link" href="/participants">Nytt event</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/results">Resultat</a>
         </li>
+        <%if(!currentUser){%>
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/user">Registrering</a>
+          </li>
+        <%}else{%> 
+          
         <li class="nav-item">
-          <a class="nav-link" href="/profil">Profil</a>
+          <a class="nav-link" href="/logout">Logg ut</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Dropdown
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Something else here</a>
-          </div>
-        </li>
+        <%}%>  
+
         
       </ul>
       

@@ -5,21 +5,13 @@
 
 <p></p>
     
-     <%for(let time of timings){%>  
-   
-
+    <%for(let time of timings){%>  
         <%if(currentUser._id.equals(time.author)){%>
- 
-        
-
             <form action="/results/<%=time._id%>/show">
                 <button style="width: 100%; background-color: rgba(22, 177, 22, 0.657);" class="btn btn-success mb-3"  onclick="'results/<%=time._id%>/show'" style="">Se resultat for <%=time.name%></button>
             </form>
         <%}%>
-
-          
-        
-        <%}%> 
+    <%}%> 
         <form action="/">
             <button class="btn btn-info" onclick="''" >Tilbake</button>
         </form>
